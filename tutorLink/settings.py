@@ -22,13 +22,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-z82wz95)oxbhorgb17_46cxs@u8-hd%+i31f--4rkr44vw_wd@'
+# SECRET_KEY = 'django-insecure-z82wz95)oxbhorgb17_46cxs@u8-hd%+i31f--4rkr44vw_wd@'
+
+SECRET_KEY = os.environ.get('SECRET_KEY', default='unsecure-key'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = 'RENDER' not in os.environ
 
 ALLOWED_HOSTS = []
-
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 
@@ -46,6 +50,7 @@ AUTH_USER_MODEL = 'tutorLinkApp.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -79,13 +84,14 @@ WSGI_APPLICATION = 'tutorLink.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'WebDatabase',
-        'USER': 'postgres',
-        'PASSWORD': 'DatabaseTest123',
-        'HOST': 'localhost'
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'WebDatabase',
+    #     'USER': 'postgres',
+    #     'PASSWORD': 'DatabaseTest123',
+    #     'HOST': 'localhost'
+    # }
+    'default': dj_database_url.config(default=os.environ.get("DATABASE_URL"))
 }
 
 # Password validation
@@ -124,7 +130,16 @@ STATICFILES_DIRS = [
     BASE_DIR / STATIC_URL,
 ]
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+if not DEBUG:
+# django internal mapping
+    STATIC_ROOT = BASE_DIR / "assets"
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
+MEDIA_URL= "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 LOGIN_URL = '/login/'
+
+
