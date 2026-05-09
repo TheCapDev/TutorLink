@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create account — TutorLink{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+  <div class="auth-card rise rise-1" style="max-width: 540px;">
+    <h1>Join TutorLink.</h1>
+    <p class="lede">It only takes a minute. No credit card required.</p>
+
+    <form method="post" action="{% url 'register' %}" novalidate>
+      {% csrf_token %}
+
+      {% if form.errors %}
+      <div class="alert alert-danger">
+        <span>Please fix the fields below and try again.</span>
+      </div>
+      {% endif %}
+
+      <div class="field">
+        <label class="label">I want to&hellip;</label>
+        <div class="field-row" style="gap: var(--space-3);">
+          <label class="card-flat"
+            style="cursor: pointer; display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-4);">
+            <input type="radio" name="user_type" value="client" required
+              {% if form.user_type.value != 'tutor' %}checked{% endif %} style="margin-top: 4px;">
+            <div>
+              <strong>Find a tutor</strong>
+              <p class="small muted" style="margin: 2px 0 0;">For students &amp; parents</p>
+            </div>
+          </label>
+          <label class="card-flat"
+            style="cursor: pointer; display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-4);">
+            <input type="radio" name="user_type" value="tutor"
+              {% if form.user_type.value == 'tutor' %}checked{% endif %} style="margin-top: 4px;">
+            <div>
+              <strong>Teach &amp; tutor</strong>
+              <p class="small muted" style="margin: 2px 0 0;">Earn from your skills</p>
+            </div>
+          </label>
+        </div>
+        {% for error in form.user_type.errors %}
+        <p class="field-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="first_name">First name</label>
+          <input type="text" id="first_name" name="first_name"
+            class="input{% if form.first_name.errors %} is-invalid{% endif %}" required autocomplete="given-name"
+            value="{{ form.first_name.value|default_if_none:'' }}">
+          {% for error in form.first_name.errors %}
+          <p class="field-error">{{ error }}</p>
+          {% endfor %}
+        </div>
+        <div class="field">
+          <label for="last_name">Last name</label>
+          <input type="text" id="last_name" name="last_name"
+            class="input{% if form.last_name.errors %} is-invalid{% endif %}" required autocomplete="family-name"
+            value="{{ form.last_name.value|default_if_none:'' }}">
+          {% for error in form.last_name.errors %}
+          <p class="field-error">{{ error }}</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" class="input{% if form.email.errors %} is-invalid{% endif %}"
+          required autocomplete="email" value="{{ form.email.value|default_if_none:'' }}">
+        {% for error in form.email.errors %}
+        <p class="field-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="field">
+        <label for="phone">Phone number</label>
+        <input type="tel" id="phone" name="phone" class="input{% if form.phone.errors %} is-invalid{% endif %}"
+          required autocomplete="tel" inputmode="tel" placeholder="(555) 123-4567"
+          pattern="^(?:\+?1[\s.-]?)?(?:\([0-9]{3}\)|[0-9]{3})[\s.-]?[0-9]{3}[\s.-]?[0-9]{4}$"
+          title="Enter a 10-digit phone number, such as (555) 123-4567." data-phone-input
+          value="{{ form.phone.value|default_if_none:'' }}">
+        <p class="help">Use a 10-digit number, e.g. (555) 123-4567.</p>
+        <p class="field-hint" data-phone-hint>Enter a valid 10-digit phone number.</p>
+        {% for error in form.phone.errors %}
+        <p class="field-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password"
+            class="input{% if form.password.errors %} is-invalid{% endif %}" required minlength="8"
+            autocomplete="new-password" aria-describedby="password_help">
+          <p class="help" id="password_help">At least 8 characters. Longer passwords with numbers or symbols are safer.</p>
+          <div class="pwd-strength" data-pwd-strength data-level="0" aria-live="polite">
+            <div class="pwd-meter" aria-hidden="true">
+              <span class="pwd-meter-seg"></span>
+              <span class="pwd-meter-seg"></span>
+              <span class="pwd-meter-seg"></span>
+              <span class="pwd-meter-seg"></span>
+            </div>
+            <div class="pwd-strength-row">
+              <span class="pwd-strength-text" data-pwd-strength-text></span>
+              <span class="pwd-strength-tip" data-pwd-strength-tip
+                data-default="Use a mix of letters, numbers, or symbols.">Use a mix of letters, numbers, or
+                symbols.</span>
+            </div>
+          </div>
+          {% for error in form.password.errors %}
+          <p class="field-error">{{ error }}</p>
+          {% endfor %}
+        </div>
+        <div class="field">
+          <label for="password_confirm">Confirm password</label>
+          <input type="password" id="password_confirm" name="confirm_password" class="input" required minlength="8"
+            autocomplete="new-password">
+          <div class="pwd-match" data-pwd-match aria-live="polite">
+            <span class="pwd-match-icon" data-pwd-match-icon aria-hidden="true"></span>
+            <span data-pwd-match-text></span>
+          </div>
+          {% for error in form.confirm_password.errors %}
+          <p class="field-error">{{ error }}</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="checkbox-row mb-5">
+        <input type="checkbox" id="terms" name="terms" required>
+        <label for="terms" class="small">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy
+            Policy</a>.</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg">Create account</button>
+    </form>
+
+    <div class="auth-foot">
+      Already have an account? <a href="{% url 'login' %}">Sign in</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

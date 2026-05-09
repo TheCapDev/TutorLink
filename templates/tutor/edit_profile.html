@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit profile — TutorLink{% endblock %}
+{% block nav_dashboard_active %}class="active"{% endblock %}
+
+{% block content %}
+<div class="container-narrow">
+
+    <div class="page-header">
+        <p class="eyebrow">Tutor profile</p>
+        <h1>Edit profile.</h1>
+        <p class="lede">This is what students see when they consider booking with you. Make it count.</p>
+    </div>
+
+    <form method="post" action="{% url 'edit_tutor_profile' %}" novalidate>
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <span>Please fix the fields below and try again.</span>
+        </div>
+        {% endif %}
+
+        <div class="card mb-5">
+            <h3 class="card-title mb-4">Basic info</h3>
+
+            <div class="field-row">
+                <div class="field">
+                    <label for="first_name">First name</label>
+                    <input type="text" id="first_name" name="first_name" class="input" value="{{ tutor.first_name|default:'' }}" required>
+                </div>
+                <div class="field">
+                    <label for="last_name">Last name</label>
+                    <input type="text" id="last_name" name="last_name" class="input" value="{{ tutor.last_name|default:'' }}" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="phone">Phone number</label>
+                <input type="tel" id="phone" name="phone" class="input{% if form.phone.errors %} is-invalid{% endif %}"
+                    value="{{ form.phone.value|default_if_none:'' }}" required autocomplete="tel" inputmode="tel"
+                    placeholder="(555) 123-4567"
+                    pattern="^(?:\+?1[\s.-]?)?(?:\([0-9]{3}\)|[0-9]{3})[\s.-]?[0-9]{3}[\s.-]?[0-9]{4}$"
+                    title="Enter a 10-digit phone number, such as (555) 123-4567." data-phone-input>
+                <p class="help">Used for booking confirmations. Not shown publicly.</p>
+                <p class="field-hint" data-phone-hint>Enter a valid 10-digit phone number.</p>
+                {% for error in form.phone.errors %}
+                <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card mb-5">
+            <h3 class="card-title mb-4">Public profile</h3>
+
+            <div class="field">
+                <label for="bio">Bio</label>
+                <textarea id="bio" name="bio" class="textarea" rows="6" maxlength="800" placeholder="Tell students about your background, teaching style, and what makes you a great fit.">{{ tutor.bio|default:'' }}</textarea>
+                <p class="help">Up to 800 characters. Mention your degree, years tutoring, and what age groups you work best with.</p>
+            </div>
+
+            <div class="field">
+                <label for="service_radius">Service radius</label>
+                <div class="flex gap-3 items-center">
+                    <input type="number" id="service_radius" name="service_radius" class="input" value="{{ tutor.service_radius_miles|default:10 }}" min="1" max="50" style="max-width: 120px;">
+                    <span class="muted">miles from your address</span>
+                </div>
+                <p class="help">How far you're willing to travel for in-person sessions.</p>
+            </div>
+        </div>
+
+        <div class="flex justify-between gap-3">
+            <a href="{% url 'tutor_dashboard' %}" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+    </form>
+
+</div>
+{% endblock %}

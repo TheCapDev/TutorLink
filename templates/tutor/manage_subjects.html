@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Subjects — TutorLink{% endblock %}
+{% block nav_dashboard_active %}class="active"{% endblock %}
+
+{% block content %}
+<div class="container-narrow">
+
+    <div class="page-header">
+        <p class="eyebrow">Tutor profile</p>
+        <h1>Subjects &amp; rates.</h1>
+        <p class="lede">List the subjects you teach and the hourly rate for each. Students browse and book by subject.</p>
+    </div>
+
+    <!-- Existing subjects -->
+    <div class="mb-6">
+        <h3 class="mb-3">Your subjects</h3>
+
+        {% if subjects %}
+            <ul class="cred-list">
+                {% for s in subjects %}
+                <li class="cred-item">
+                    <div>
+                        <div class="cred-item-title">{{ s.subjectID.name }}</div>
+                        <div class="cred-item-meta">
+                            {{ s.subjectID.category }}
+                            · {{ s.get_skillLevel_display }}
+                            · ${{ s.ratePerHour }}/hr
+                        </div>
+                    </div>
+                    <form method="post" action="{% url 'manage_subjects' %}" style="margin: 0;">
+                        {% csrf_token %}
+                        <input type="hidden" name="delete_id" value="{{ s.TutorSubjectId }}">
+                        <button type="submit" class="btn btn-danger btn-sm" data-confirm="Remove this subject? Students won't be able to book it.">Remove</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty">
+                <h3>No subjects yet</h3>
+                <p>Add your first subject below to start receiving bookings.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Add new -->
+    <div class="card">
+        <h3 class="card-title mb-4">Add a subject</h3>
+
+        <form method="post" action="{% url 'manage_subjects' %}" novalidate>
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="field">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<p class="help" style="color: var(--color-danger, #c00);">{{ field.errors|join:", " }}</p>{% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary">Add subject</button>
+        </form>
+    </div>
+
+    <p class="mt-5">
+        <a href="{% url 'tutor_dashboard' %}" class="btn btn-ghost">← Back to dashboard</a>
+    </p>
+
+</div>
+{% endblock %}

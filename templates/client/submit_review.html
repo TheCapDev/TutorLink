@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Leave a review — TutorLink{% endblock %}
+
+{% block content %}
+<div class="container-narrow">
+
+    <div class="page-header">
+        <p class="eyebrow">Review</p>
+        <h1>How was your session?</h1>
+        <p class="lede">Your honest feedback helps other families find their fit.</p>
+    </div>
+
+    <!-- Booking summary -->
+    <div class="card card-warm mb-5 flex items-center gap-4" style="padding: var(--space-5);">
+        <div class="avatar avatar-md">{{ booking.tutor_initials }}</div>
+        <div style="flex: 1;">
+            <h4 style="margin: 0 0 2px;">{{ booking.tutor_name }}</h4>
+            <div class="small muted">{{ booking.subject_name }} · {{ booking.scheduled_date }} · {{ booking.duration_minutes }} min</div>
+        </div>
+    </div>
+
+    <!-- Review form -->
+    <form method="post" action="{% url 'submit_review' booking.bookingId %}" novalidate>
+        {% csrf_token %}
+
+        <div class="card mb-5">
+            <div class="field">
+                <label class="label">Rating</label>
+                <div class="rating-input">
+                    <input type="radio" id="r5" name="rating" value="5" required>
+                    <label for="r5" title="Excellent">★</label>
+                    <input type="radio" id="r4" name="rating" value="4">
+                    <label for="r4" title="Great">★</label>
+                    <input type="radio" id="r3" name="rating" value="3">
+                    <label for="r3" title="Good">★</label>
+                    <input type="radio" id="r2" name="rating" value="2">
+                    <label for="r2" title="Fair">★</label>
+                    <input type="radio" id="r1" name="rating" value="1">
+                    <label for="r1" title="Poor">★</label>
+                </div>
+                <p class="help">Tap a star to rate from 1 (poor) to 5 (excellent).</p>
+            </div>
+
+            <div class="field">
+                <label for="comment">Your review <span class="muted">(optional)</span></label>
+                <textarea id="comment" name="comment" class="textarea" rows="6" maxlength="600" placeholder="What did you like? What could be better? Share your honest experience…"></textarea>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <span>
+                <strong>Reviews are public.</strong> Your first name and last initial will appear next to your comment. Reviews can't be edited once submitted.
+            </span>
+        </div>
+
+        <div class="flex justify-between gap-3">
+            <a href="{% url 'view_bookings' %}" class="btn btn-ghost">Skip for now</a>
+            <button type="submit" class="btn btn-primary">Submit review</button>
+        </div>
+    </form>
+
+</div>
+{% endblock %}

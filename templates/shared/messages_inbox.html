@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Messages — TutorLink{% endblock %}
+{% block nav_messages_active %}class="active"{% endblock %}
+{% block nav_cmessages_active %}class="active"{% endblock %}
+
+{% block content %}
+<div class="container-narrow">
+
+    <div class="page-header">
+        <p class="eyebrow">Messages</p>
+        <h1>Inbox.</h1>
+        <p class="lede">{{ unread_count|default:'0' }} unread {% if unread_count == 1 %}message{% else %}messages{% endif %}.</p>
+    </div>
+
+    {% if inbox %}
+    <div class="msg-list">
+        {% for m in inbox %}
+        <a href="{% url 'conversation' m.other_user_id %}" class="msg-row {% if not m.is_read %}unread{% endif %}">
+            <div class="avatar avatar-md">{{ m.sender_initial }}</div>
+            <div class="msg-row-content">
+                <div class="msg-row-sender">
+                    <span class="msg-row-name">{{ m.sender_name }}</span>
+                </div>
+                <div class="msg-row-preview">{{ m.preview }}</div>
+            </div>
+            <div class="msg-row-time">{{ m.sent_at_display }}</div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+        <div class="empty">
+            <div class="empty-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                </svg>
+            </div>
+            <h3>No messages yet</h3>
+            <p>When someone messages you, it will appear here.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

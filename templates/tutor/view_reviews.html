@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your reviews — TutorLink{% endblock %}
+{% block nav_reviews_active %}class="active"{% endblock %}
+
+{% block content %}
+<div class="container-narrow">
+
+    <div class="page-header">
+        <p class="eyebrow">Tutor profile</p>
+        <h1>Reviews from your students.</h1>
+        <p class="lede">Honest feedback from the families you've worked with.</p>
+    </div>
+
+    <!-- Summary -->
+    <div class="card mb-6 flex items-center gap-5" style="padding: var(--space-6);">
+        <div style="text-align: center;">
+            <div style="font-family: var(--font-display); font-size: 4rem; font-weight: 400; line-height: 1; color: var(--color-ink); font-variation-settings: 'opsz' 144;">{{ avg_rating|default:'—' }}</div>
+            <div class="stars mt-2">
+                {% for i in stars_full %}<span>★</span>{% endfor %}{% for i in stars_empty %}<span style="color: var(--color-line);">★</span>{% endfor %}
+            </div>
+        </div>
+        <div style="flex: 1;">
+            <h3 style="margin: 0 0 var(--space-2);">{{ review_count|default:'0' }} reviews</h3>
+            <p class="muted small">Based on completed sessions across all subjects.</p>
+        </div>
+    </div>
+
+    <!-- Reviews list -->
+    {% if reviews %}
+        {% for r in reviews %}
+        <div class="review-item">
+            <div class="review-head">
+                <div class="review-author">
+                    <div class="avatar avatar-sm">{{ r.client_initial }}</div>
+                    <div>
+                        <div class="review-author-name">{{ r.client_name }}</div>
+                        <div class="review-date">{{ r.subject_name }} · {{ r.review_date }}</div>
+                    </div>
+                </div>
+                <div class="stars">
+                    {% for i in r.stars_full %}<span>★</span>{% endfor %}{% for i in r.stars_empty %}<span style="color: var(--color-line);">★</span>{% endfor %}
+                </div>
+            </div>
+            {% if r.comment %}
+                <p class="review-body">{{ r.comment }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty">
+            <div class="empty-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7l3-7z"/>
+                </svg>
+            </div>
+            <h3>No reviews yet</h3>
+            <p>Once you complete sessions, students will be able to leave reviews here.</p>
+        </div>
+    {% endif %}
+
+    <p class="mt-5">
+        <a href="{% url 'tutor_dashboard' %}" class="btn btn-ghost">← Back to dashboard</a>
+    </p>
+
+</div>
+{% endblock %}

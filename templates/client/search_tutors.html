@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Find a tutor — TutorLink{% endblock %}
+{% block nav_search_active %}class="active"{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/search.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="page-header">
+        <p class="eyebrow">Browse</p>
+        <h1>Find a tutor.</h1>
+        <p class="lede">{{ result_count|default:'0' }} tutors near you teaching what you want to learn.</p>
+    </div>
+
+    <div class="two-col">
+
+        <!-- ======== FILTER SIDEBAR ======== -->
+        <aside>
+            <form id="search-filters" method="get" action="{% url 'search_tutors' %}" class="filter-sidebar">
+                <h3>Filter</h3>
+
+                <div class="filter-group">
+                    <label class="label" for="subject">Subject</label>
+                    <select id="subject" name="subject" class="select">
+                        <option value="">All subjects</option>
+                        {% for s in subjects %}
+                            <option value="{{ s.subject_id }}" {% if s.selected %}selected{% endif %}>{{ s.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="label" for="zip">Your zip code</label>
+                    <input type="text" id="zip" name="zip_code" class="input" value="{{ filters.zip_code|default:'' }}" placeholder="10001" maxlength="10">
+                </div>
+
+                <div class="filter-group">
+                    <label class="label" for="distance">Maximum distance</label>
+                    <select id="distance" name="max_distance" class="select">
+                        <option value="">Any distance</option>
+                        <option value="5" {% if filters.max_distance == '5' %}selected{% endif %}>Within 5 miles</option>
+                        <option value="10" {% if filters.max_distance == '10' %}selected{% endif %}>Within 10 miles</option>
+                        <option value="25" {% if filters.max_distance == '25' %}selected{% endif %}>Within 25 miles</option>
+                        <option value="50" {% if filters.max_distance == '50' %}selected{% endif %}>Within 50 miles</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="label" for="day">Available on</label>
+                    <select id="day" name="day_of_week" class="select">
+                        <option value="">Any day</option>
+                        <option value="monday" {% if filters.day_of_week == 'monday' %}selected{% endif %}>Monday</option>
+                        <option value="tuesday" {% if filters.day_of_week == 'tuesday' %}selected{% endif %}>Tuesday</option>
+                        <option value="wednesday" {% if filters.day_of_week == 'wednesday' %}selected{% endif %}>Wednesday</option>
+                        <option value="thursday" {% if filters.day_of_week == 'thursday' %}selected{% endif %}>Thursday</option>
+                        <option value="friday" {% if filters.day_of_week == 'friday' %}selected{% endif %}>Friday</option>
+                        <option value="saturday" {% if filters.day_of_week == 'saturday' %}selected{% endif %}>Saturday</option>
+                        <option value="sunday" {% if filters.day_of_week == 'sunday' %}selected{% endif %}>Sunday</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="label" for="start_time">Time of day</label>
+                    <input type="time" id="start_time" name="start_time" class="input" value="{{ filters.start_time|default:'' }}">
+                </div>
+
+                <div class="filter-group">
+                    <div class="checkbox-row">
+                        <input type="checkbox" id="verified" name="verified_only" value="1" {% if filters.verified_only %}checked{% endif %}>
+                        <label for="verified">Verified tutors only</label>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: var(--space-2); margin-top: var(--space-5);">
+                    <button type="submit" class="btn btn-primary btn-block">Apply filters</button>
+                </div>
+                <button type="button" data-reset class="btn btn-ghost btn-sm btn-block mt-3">Reset all</button>
+            </form>
+        </aside>
+
+        <!-- ======== RESULTS ======== -->
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <p class="muted small" style="margin: 0;">{{ result_count|default:'0' }} matches</p>
+                <select class="select" style="width: auto;">
+                    <option>Sort: Best match</option>
+                    <option>Highest rated</option>
+                    <option>Lowest rate</option>
+                    <option>Most reviews</option>
+                </select>
+            </div>
+
+            {% if tutors %}
+                {% for t in tutors %}
+                <article class="tutor-card mb-3">
+                    <a href="{% url 'tutor_profile' t.tutorId %}" style="text-decoration: none;">
+                        <div class="avatar">{{ t.initials }}</div>
+                    </a>
+                    <div>
+                        <a href="{% url 'tutor_profile' t.tutorId %}" style="text-decoration: none; color: inherit;">
+                            <h3>{{ t.first_name }} {{ t.last_name_initial }}.</h3>
+                        </a>
+                        <div class="tutor-card-meta">
+                            <span class="stars">{% for i in t.stars %}★{% endfor %}<span class="stars-meta">{{ t.avg_rating }} ({{ t.review_count }})</span></span>
+                            <span>· {{ t.distance_miles }} mi</span>
+                            {% if t.is_verified %}<span class="badge badge-verified">✓ Verified</span>{% endif %}
+                        </div>
+                        <p class="tutor-card-bio">{{ t.bio_preview }}</p>
+                        <div class="tutor-card-tags">
+                            {% for s in t.subjects %}
+                            <span class="pill">{{ s }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="tutor-card-cta">
+                        <div>
+                            <span class="tutor-card-rate">${{ t.rate_per_hour }}</span>
+                            <span class="tutor-card-rate-suffix">/hr</span>
+                        </div>
+                        <a href="{% url 'tutor_profile' t.tutorId %}" class="btn btn-primary btn-sm">View profile</a>
+                    </div>
+                </article>
+                {% endfor %}
+            {% else %}
+                <div class="empty">
+                    <div class="empty-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="11" cy="11" r="7"/>
+                            <path d="M21 21l-4.35-4.35"/>
+                        </svg>
+                    </div>
+                    <h3>No tutors match your filters</h3>
+                    <p>Try expanding your distance or removing some filters.</p>
+                </div>
+            {% endif %}
+
+            <!-- Pagination -->
+            {% if pagination %}
+            <nav class="flex justify-center gap-2 mt-6" aria-label="Pagination">
+                {% if pagination.prev %}<a href="?page={{ pagination.prev }}" class="btn btn-outline btn-sm">← Previous</a>{% endif %}
+                <span class="pill">Page {{ pagination.current }} of {{ pagination.total }}</span>
+                {% if pagination.next %}<a href="?page={{ pagination.next }}" class="btn btn-outline btn-sm">Next →</a>{% endif %}
+            </nav>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

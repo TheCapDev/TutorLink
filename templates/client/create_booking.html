@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Book a session — TutorLink{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="page-header">
+        <p class="eyebrow">Book a session</p>
+        <h1>Schedule with <em style="color: var(--color-accent); font-style: italic;">{{ tutor.first_name }}</em>.</h1>
+        <p class="lede">Pick a subject, slot, and location. We'll confirm details before charging.</p>
+    </div>
+
+    <div class="two-col" style="grid-template-columns: 1fr 360px; gap: var(--space-8);">
+
+        <!-- ======== BOOKING FORM ======== -->
+        <form method="post" action="{% url 'create_booking' tutor.tutorId %}" novalidate>
+            {% csrf_token %}
+
+            <div class="card mb-5">
+                <h3 class="card-title mb-4">Subject &amp; rate</h3>
+                <div class="field">
+                    <label for="tutor_subject">Choose a subject</label>
+                    <select id="tutor_subject" name="tutor_subject" class="select" required data-rate>
+                        {% for s in tutor.subjects %}
+                            <option value="{{ s.tutor_subject_id }}" data-rate="{{ s.rate_per_hour }}">
+                                {{ s.subject_name }} — ${{ s.rate_per_hour }}/hr ({{ s.skill_level }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="card mb-5">
+                <h3 class="card-title mb-4">When?</h3>
+
+                <div class="field">
+                    <label for="availability">Available slot</label>
+                    <select id="availability" name="availability" class="select" required>
+                        <option value="">Choose a time slot…</option>
+                        {% for slot in tutor.available_slots %}
+                            <option value="{{ slot.availability_id }}">{{ slot.day_of_week }}, {{ slot.start_time }}–{{ slot.end_time }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="scheduled_date">Date</label>
+                    <input type="date" id="scheduled_date" name="scheduled_date" class="input" required min="{{ today }}">
+                </div>
+
+                <div class="field">
+                    <label for="duration">Duration</label>
+                    <select id="duration" name="duration_minutes" class="select" required data-rate-input>
+                        <option value="30">30 minutes</option>
+                        <option value="60" selected>1 hour</option>
+                        <option value="90">1.5 hours</option>
+                        <option value="120">2 hours</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card mb-5">
+                <h3 class="card-title mb-4">Where?</h3>
+
+                <div class="field">
+                    <label for="street">Street address</label>
+                    <input type="text" id="street" name="street" class="input" required placeholder="123 Main Street">
+                </div>
+
+                <div class="field-row">
+                    <div class="field">
+                        <label for="city">City</label>
+                        <input type="text" id="city" name="city" class="input" required>
+                    </div>
+                    <div class="field">
+                        <label for="state">State</label>
+                        <input type="text" id="state" name="state" class="input" required maxlength="2" placeholder="NY" style="text-transform: uppercase;">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="zip">Zip code</label>
+                    <input type="text" id="zip" name="zip_code" class="input" required maxlength="10" style="max-width: 160px;">
+                </div>
+            </div>
+
+            <div class="card mb-5">
+                <h3 class="card-title mb-4">Payment method</h3>
+                <div class="field">
+                    <label class="card-flat" style="cursor: pointer; display: flex; gap: var(--space-3); align-items: center; padding: var(--space-4);">
+                        <input type="radio" name="payment_method" value="credit_card" required checked>
+                        <div style="flex: 1;">
+                            <strong>Credit card</strong>
+                            <p class="small muted" style="margin: 2px 0 0;">Visa, Mastercard, Amex</p>
+                        </div>
+                    </label>
+                    <label class="card-flat" style="cursor: pointer; display: flex; gap: var(--space-3); align-items: center; padding: var(--space-4); margin-top: var(--space-2);">
+                        <input type="radio" name="payment_method" value="debit_card">
+                        <div style="flex: 1;">
+                            <strong>Debit card</strong>
+                            <p class="small muted" style="margin: 2px 0 0;">Direct from your bank</p>
+                        </div>
+                    </label>
+                    <label class="card-flat" style="cursor: pointer; display: flex; gap: var(--space-3); align-items: center; padding: var(--space-4); margin-top: var(--space-2);">
+                        <input type="radio" name="payment_method" value="paypal">
+                        <div style="flex: 1;">
+                            <strong>PayPal</strong>
+                            <p class="small muted" style="margin: 2px 0 0;">Pay with your PayPal balance</p>
+                        </div>
+                    </label>
+                </div>
+                <p class="help">You won't be charged until {{ tutor.first_name }} confirms the booking.</p>
+            </div>
+
+            <div class="flex justify-between gap-3">
+                <a href="{% url 'tutor_profile' tutor.tutorId %}" class="btn btn-ghost">Cancel</a>
+                <button type="submit" class="btn btn-primary btn-lg">Confirm &amp; book</button>
+            </div>
+        </form>
+
+        <!-- ======== SUMMARY SIDEBAR ======== -->
+        <aside>
+            <div class="summary-card">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="avatar avatar-md">{{ tutor.initials }}</div>
+                    <div>
+                        <h4 style="margin: 0;">{{ tutor.first_name }} {{ tutor.last_name_initial }}.</h4>
+                        <div class="small muted">{{ tutor.avg_rating }} ★ · {{ tutor.review_count }} reviews</div>
+                    </div>
+                </div>
+
+                <div class="summary-row"><span class="lbl">Rate</span><span class="val">${{ tutor.default_rate }}/hr</span></div>
+                <div class="summary-row"><span class="lbl">Service fee</span><span class="val">$0.00</span></div>
+
+                <div class="summary-total">
+                    <span>Total</span>
+                    <span data-total>$0.00</span>
+                </div>
+
+                <p class="help mt-4">
+                    Total updates as you adjust duration. You won't be charged until the tutor confirms.
+                </p>
+            </div>
+        </aside>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ tutor.first_name }} {{ tutor.last_name_initial }}. — TutorLink{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- Profile hero -->
+    <div class="profile-hero">
+        <div class="avatar avatar-lg">{{ tutor.initials }}</div>
+        <div>
+            <h1 class="profile-name">{{ tutor.first_name }} {{ tutor.last_name_initial }}.</h1>
+            <div class="profile-meta">
+                <span class="stars">
+                    {% for i in tutor.stars_full %}★{% endfor %}{% for i in tutor.stars_empty %}<span style="color: var(--color-line);">★</span>{% endfor %}
+                    <span class="stars-meta">{{ tutor.avg_rating }} · {{ tutor.review_count }} reviews</span>
+                </span>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+                {% if tutor.is_verified %}<span class="badge badge-verified">✓ Verified</span>{% endif %}
+                {% if tutor.background_check_status == 'Passed' %}<span class="badge badge-success">Background check passed</span>{% endif %}
+                <span class="pill">{{ tutor.service_radius_miles }} mi service area</span>
+            </div>
+        </div>
+        <div class="flex flex-col gap-2">
+            <a href="{% url 'create_booking' tutor.tutorId %}" class="btn btn-primary btn-lg">Book a session</a>
+            <a href="{% url 'conversation' tutor.userID_id %}" class="btn btn-outline">Message</a>
+        </div>
+    </div>
+
+    <!-- About -->
+    <section class="section-block">
+        <h3>About {{ tutor.first_name }}</h3>
+        <p style="font-size: 1.0625rem; line-height: 1.7; max-width: 720px;">{{ tutor.bio }}</p>
+    </section>
+
+    <!-- Subjects -->
+    <section class="section-block">
+        <h3>Subjects &amp; rates</h3>
+        <div class="subjects-grid">
+            {% for s in tutor.subjects %}
+            <div class="subject-card">
+                <div class="subject-card-name">{{ s.subject_name }}</div>
+                <div class="subject-card-meta">{{ s.skill_level }} · {{ s.category }}</div>
+                <div class="subject-card-rate">${{ s.rate_per_hour }}<span style="font-family: var(--font-body); font-size: 0.875rem; color: var(--color-ink-muted); font-weight: 400;">/hr</span></div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Credentials -->
+    {% if tutor.credentials %}
+    <section class="section-block">
+        <h3>Credentials</h3>
+        <ul class="cred-list">
+            {% for c in tutor.credentials %}
+            <li class="cred-item">
+                <div>
+                    <div class="cred-item-title">{{ c.type }}</div>
+                    <div class="cred-item-meta">{{ c.issuing_institution }}{% if c.issue_date %} · {{ c.issue_date }}{% endif %}</div>
+                </div>
+                {% if c.document_url %}
+                <a href="{{ c.document_url }}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">View</a>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+
+    <!-- Availability preview -->
+    <section class="section-block">
+        <h3>Availability</h3>
+        <div class="avail-grid">
+            {% for day in tutor.availability %}
+            <div class="avail-day">
+                <div class="avail-day-name">{{ day.short_name }}</div>
+                {% for slot in day.slots %}
+                <div class="avail-slot" style="cursor: default;">
+                    <span>{{ slot.start_time }}–{{ slot.end_time }}</span>
+                </div>
+                {% empty %}
+                <p class="tiny muted" style="margin: 0;">—</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        <p class="muted small mt-3">Times shown in your local timezone. Choose a slot when booking.</p>
+    </section>
+
+    <!-- Reviews -->
+    {% if tutor.reviews %}
+    <section class="section-block">
+        <div class="flex items-center justify-between mb-4">
+            <h3 style="margin: 0;">Recent reviews</h3>
+            <span class="stars">
+                {% for i in tutor.stars_full %}★{% endfor %}<span class="stars-meta">{{ tutor.avg_rating }} · {{ tutor.review_count }} reviews</span>
+            </span>
+        </div>
+        {% for r in tutor.reviews %}
+        <div class="review-item">
+            <div class="review-head">
+                <div class="review-author">
+                    <div class="avatar avatar-sm">{{ r.client_initial }}</div>
+                    <div>
+                        <div class="review-author-name">{{ r.client_name }}</div>
+                        <div class="review-date">{{ r.subject_name }} · {{ r.review_date }}</div>
+                    </div>
+                </div>
+                <div class="stars">{% for i in r.stars_full %}★{% endfor %}{% for i in r.stars_empty %}<span style="color: var(--color-line);">★</span>{% endfor %}</div>
+            </div>
+            {% if r.comment %}<p class="review-body">{{ r.comment }}</p>{% endif %}
+        </div>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    <div class="cta-banner mt-6">
+        <h2>Ready to learn with {{ tutor.first_name }}?</h2>
+        <p>Pick a time slot, confirm details, pay securely.</p>
+        <a href="{% url 'create_booking' tutor.tutorId %}" class="btn btn-primary btn-lg">Book a session</a>
+    </div>
+
+</div>
+{% endblock %}

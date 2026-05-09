@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}TutorLink — Find a tutor near you{% endblock %}</title>
+  <meta name="description"
+    content="{% block meta_description %}TutorLink connects students and parents with verified local tutors and skill coaches.{% endblock %}">
+
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  {% block extra_css %}{% endblock %}
+
+  <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+</head>
+
+<body>
+
+  <!-- ======== NAVIGATION ======== -->
+  <nav class="nav" role="navigation" aria-label="Main">
+    <div class="nav-inner">
+      <a href="{% url 'home' %}" class="brand" aria-label="TutorLink home">
+        <span>Tutor</span><span class="brand-mark">Link</span><span class="brand-dot">.</span>
+      </a>
+
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
+        </svg>
+      </button>
+
+      <ul class="nav-links">
+        {% if user.is_authenticated %}
+        {% if user_type == 'tutor' %}
+        <li><a href="{% url 'tutor_dashboard' %}" {% block nav_dashboard_active %}{% endblock %}>Dashboard</a></li>
+        <li><a href="{% url 'view_bookings' %}" {% block nav_bookings_active %}{% endblock %}>Bookings</a></li>
+        <li><a href="{% url 'messages_inbox' %}" {% block nav_messages_active %}{% endblock %}>Messages</a></li>
+        <li><a href="{% url 'tutor_reviews' %}" {% block nav_reviews_active %}{% endblock %}>Reviews</a></li>
+        {% else %}
+        <li><a href="{% url 'client_dashboard' %}" {% block nav_cdashboard_active %}{% endblock %}>Dashboard</a></li>
+        <li><a href="{% url 'search_tutors' %}" {% block nav_search_active %}{% endblock %}>Find tutors</a></li>
+        <li><a href="{% url 'view_bookings' %}" {% block nav_cbookings_active %}{% endblock %}>Bookings</a></li>
+        <li><a href="{% url 'messages_inbox' %}" {% block nav_cmessages_active %}{% endblock %}>Messages</a></li>
+        {% endif %}
+        <li><a href="{% url 'logout' %}" class="btn btn-ghost btn-sm">Sign out</a></li>
+        {% else %}
+        <li><a href="{% url 'search_tutors' %}">Find tutors</a></li>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="{% url 'login' %}">Sign in</a></li>
+        <li><a href="{% url 'register' %}" class="btn btn-primary btn-sm">Get started</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ======== MESSAGES / FLASH ======== -->
+  {% if messages %}
+  <div class="container" style="padding-top: var(--space-5);">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }}" data-dismiss="6000">
+      <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ======== MAIN CONTENT ======== -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ======== FOOTER ======== -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div>
+          <a href="{% url 'home' %}" class="brand" aria-label="TutorLink home">
+            <span>Tutor</span><span class="brand-mark">Link</span><span class="brand-dot">.</span>
+          </a>
+          <p class="muted small mt-3" style="max-width: 320px;">
+            Connecting students with verified local tutors and skill coaches since 2024.
+          </p>
+        </div>
+        <div>
+          <h5>Learn</h5>
+          <ul>
+            <li><a href="{% url 'search_tutors' %}">Find a tutor</a></li>
+            <li><a href="#">Browse subjects</a></li>
+            <li><a href="#">How it works</a></li>
+            <li><a href="#">Pricing</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Teach</h5>
+          <ul>
+            <li><a href="{% url 'register' %}">Become a tutor</a></li>
+            <li><a href="#">Tutor handbook</a></li>
+            <li><a href="#">Get verified</a></li>
+            <li><a href="#">Payments</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Company</h5>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Trust &amp; safety</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">Help center</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2024 TutorLink. All rights reserved.</span>
+        <span><a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Cookies</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tutor dashboard — TutorLink{% endblock %}
+{% block nav_dashboard_active %}class="active"{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="page-header">
+        <p class="eyebrow rise rise-1">Tutor dashboard</p>
+        <h1 class="rise rise-2">Hello, <em style="font-style: italic; color: var(--color-accent);">{{ user.first_name|default:'Tutor' }}</em>.</h1>
+        <p class="lede rise rise-3">
+            {% if is_verified %}
+                You're verified and visible in search results. Here's what's happening today.
+            {% else %}
+                Your profile is live, but you'll appear in more searches once your background check completes.
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-grid">
+        <div class="stat rise rise-1">
+            <div class="stat-label">Upcoming bookings</div>
+            <div class="stat-value">{{ upcoming_bookings_count|default:'0' }}</div>
+            <div class="stat-meta">{{ next_booking_when|default:'No sessions scheduled' }}</div>
+        </div>
+        <div class="stat rise rise-2">
+            <div class="stat-label">Unread messages</div>
+            <div class="stat-value">{{ unread_messages_count|default:'0' }}</div>
+            <div class="stat-meta"><a href="{% url 'messages_inbox' %}">Open inbox →</a></div>
+        </div>
+        <div class="stat rise rise-3">
+            <div class="stat-label">Average rating</div>
+            <div class="stat-value">{{ avg_rating|default:'—' }}</div>
+            <div class="stat-meta">{{ review_count|default:'0' }} reviews</div>
+        </div>
+        <div class="stat rise rise-4">
+            <div class="stat-label">Verification</div>
+            <div class="stat-value" style="font-size: 1.5rem;">
+                {% if is_verified %}
+                    <span class="badge badge-verified">✓ Verified</span>
+                {% else %}
+                    <span class="badge badge-warning">Pending</span>
+                {% endif %}
+            </div>
+            <div class="stat-meta">Background check {{ check_status|default:'in progress' }}</div>
+        </div>
+    </div>
+
+    <!-- Two columns -->
+    <div class="three-col">
+        <a href="{% url 'edit_tutor_profile' %}" class="card card-hover" style="text-decoration: none; color: inherit;">
+            <h3 class="card-title">Edit profile</h3>
+            <p class="muted small">Bio, service radius, and contact details. Keep your profile fresh so families can find you.</p>
+        </a>
+        <a href="{% url 'manage_subjects' %}" class="card card-hover" style="text-decoration: none; color: inherit;">
+            <h3 class="card-title">Subjects &amp; rates</h3>
+            <p class="muted small">List the subjects you teach and your hourly rate for each. Students browse and book by subject.</p>
+        </a>
+        <a href="{% url 'manage_credentials' %}" class="card card-hover" style="text-decoration: none; color: inherit;">
+            <h3 class="card-title">Credentials</h3>
+            <p class="muted small">Add degrees, certifications, and teaching credentials. Verified credentials boost your visibility.</p>
+        </a>
+        <a href="{% url 'manage_availability' %}" class="card card-hover" style="text-decoration: none; color: inherit;">
+            <h3 class="card-title">Availability</h3>
+            <p class="muted small">Set the days and times you're free. Students can only book during these slots.</p>
+        </a>
+    </div>
+
+    <div class="section-sm">
+        <div class="flex items-center justify-between mb-4">
+            <h2 style="margin: 0;">Upcoming sessions</h2>
+            <a href="{% url 'view_bookings' %}" class="btn btn-ghost btn-sm">View all →</a>
+        </div>
+
+        {% if upcoming_bookings %}
+            {% for b in upcoming_bookings %}
+            <div class="booking-item">
+                <div class="date-block">
+                    <div class="date-block-month">{{ b.month }}</div>
+                    <div class="date-block-day">{{ b.day }}</div>
+                    <div class="date-block-time">{{ b.time }}</div>
+                </div>
+                <div class="booking-info">
+                    <h4>{{ b.subject_name }} with {{ b.client_name }}</h4>
+                    <div class="booking-info-meta">
+                        <span><span class="status-dot {{ b.status_class }}"></span>{{ b.status }}</span>
+                        <span>· {{ b.duration_minutes }} min</span>
+                        <span>· {{ b.location }}</span>
+                    </div>
+                </div>
+                <div class="booking-actions">
+                    <a href="{% url 'view_bookings' %}" class="btn btn-outline btn-sm">Details</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty">
+                <div class="empty-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/>
+                        <path d="M16 2v4M8 2v4M3 10h18"/>
+                    </svg>
+                </div>
+                <h3>No upcoming sessions</h3>
+                <p>When students book a session, you'll see it here.</p>
+                <a href="{% url 'manage_availability' %}" class="btn btn-outline btn-sm">Update availability</a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

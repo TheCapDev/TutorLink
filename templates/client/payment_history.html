@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment history — TutorLink{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="page-header">
+        <p class="eyebrow">Account</p>
+        <h1>Payment history.</h1>
+        <p class="lede">All your TutorLink transactions in one place.</p>
+    </div>
+
+    <!-- Summary stats -->
+    <div class="stat-grid">
+        <div class="stat">
+            <div class="stat-label">Total spent</div>
+            <div class="stat-value">${{ total_spent|default:'0.00' }}</div>
+            <div class="stat-meta">across {{ total_payments|default:'0' }} sessions</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">This month</div>
+            <div class="stat-value">${{ month_spent|default:'0.00' }}</div>
+            <div class="stat-meta">{{ month_payments|default:'0' }} sessions</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Refunded</div>
+            <div class="stat-value">${{ total_refunded|default:'0.00' }}</div>
+            <div class="stat-meta">across {{ refund_count|default:'0' }} cancellations</div>
+        </div>
+    </div>
+
+    <!-- Transactions table -->
+    {% if payments %}
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Booking</th>
+                    <th>Tutor</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                    <th class="text-right">Amount</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in payments %}
+                <tr>
+                    <td>{{ p.processed_at }}</td>
+                    <td>#{{ p.booking_id }} <span class="muted small">· {{ p.subject_name }}</span></td>
+                    <td>{{ p.tutor_name }}</td>
+                    <td>{{ p.method }}</td>
+                    <td>
+                        {% if p.status == 'Processed' %}
+                            <span class="badge badge-success">Processed</span>
+                        {% elif p.status == 'Refunded' %}
+                            <span class="badge badge-neutral">Refunded</span>
+                        {% else %}
+                            <span class="badge badge-warning">{{ p.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-right" style="font-family: var(--font-display); font-weight: 500;">${{ p.amount }}</td>
+                    <td><a href="#" class="btn btn-ghost btn-sm">Receipt</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="empty">
+            <div class="empty-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="2" y="6" width="20" height="14" rx="2"/>
+                    <path d="M2 10h20"/>
+                </svg>
+            </div>
+            <h3>No payments yet</h3>
+            <p>Once you book and complete a session, your transactions will appear here.</p>
+            <a href="{% url 'search_tutors' %}" class="btn btn-primary btn-sm">Find a tutor</a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

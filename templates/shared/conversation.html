@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Conversation with {{ other_user.first_name }} — TutorLink{% endblock %}
+{% block nav_messages_active %}class="active"{% endblock %}
+{% block nav_cmessages_active %}class="active"{% endblock %}
+
+{% block content %}
+<div class="container-narrow">
+
+    <p class="mb-3">
+        <a href="{% url 'messages_inbox' %}" class="btn btn-ghost btn-sm">← Inbox</a>
+    </p>
+
+    <!-- Conversation header -->
+    <div class="card mb-4 flex items-center gap-4" style="padding: var(--space-4);">
+        <div class="avatar avatar-md">{{ other_user.initial }}</div>
+        <div style="flex: 1;">
+            <h3 style="margin: 0; font-family: var(--font-display); font-size: 1.25rem;">{{ other_user.first_name }} {{ other_user.last_name_initial }}.</h3>
+            <div class="small muted">
+                {% if other_user.is_tutor %}Tutor · {{ other_user.subjects_summary }}{% else %}Student{% endif %}
+            </div>
+        </div>
+        {% if other_user.is_tutor %}
+        <a href="{% url 'tutor_profile' other_user.tutor_id %}" class="btn btn-outline btn-sm">View profile</a>
+        {% endif %}
+    </div>
+
+    <!-- Thread -->
+    <div class="thread">
+        {% for msg in thread %}
+            {% if msg.is_me %}
+                <div class="bubble bubble-me">
+                    <div>{{ msg.body }}</div>
+                    <div class="bubble-time">{{ msg.sent_at_display }}</div>
+                </div>
+            {% else %}
+                <div class="bubble bubble-them">
+                    <div>{{ msg.body }}</div>
+                    <div class="bubble-time">{{ msg.sent_at_display }}</div>
+                </div>
+            {% endif %}
+        {% empty %}
+            <div class="text-center muted small" style="padding: var(--space-6);">
+                No messages yet. Say hello.
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Compose -->
+    <form method="post" action="{% url 'conversation' other_user.userId %}" class="compose">
+        {% csrf_token %}
+        <input type="text" name="body" class="input flex-1" placeholder="Write a message…" required autocomplete="off" autofocus>
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+
+    <p class="help mt-3 text-center">
+        Be respectful. TutorLink reviews flagged messages to keep our community safe.
+    </p>
+
+</div>
+{% endblock %}

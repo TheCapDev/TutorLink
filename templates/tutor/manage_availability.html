@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Availability — TutorLink{% endblock %}
+{% block nav_dashboard_active %}class="active"{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="page-header">
+        <p class="eyebrow">Tutor profile</p>
+        <h1>Availability.</h1>
+        <p class="lede">Set the days and times you're free to teach. Students can only book inside these slots.</p>
+    </div>
+
+    <!-- Weekly grid -->
+    <h3 class="mb-3">This week</h3>
+    <div class="avail-grid">
+        {% for day in days %}
+        <div class="avail-day">
+            <div class="avail-day-name">{{ day.short_name }}</div>
+            {% for slot in day.slots %}
+            <div class="avail-slot">
+                <span>{{ slot.start_time }}–{{ slot.end_time }}</span>
+                <form method="post" action="{% url 'manage_availability' %}" style="margin: 0; display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="delete_id" value="{{ slot.availabilityId }}">
+                    <button type="submit" data-confirm="Remove this availability slot?" title="Remove">×</button>
+                </form>
+            </div>
+            {% empty %}
+            <p class="tiny muted" style="margin: 0;">—</p>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Add new slot -->
+    <div class="card">
+        <h3 class="card-title mb-4">Add a time slot</h3>
+
+        <form method="post" action="{% url 'manage_availability' %}" novalidate>
+            {% csrf_token %}
+
+            <div class="field-row">
+                <div class="field">
+                    <label for="day_of_week">Day of week</label>
+                    <select id="day_of_week" name="dayOfWeek" class="select" required>
+                        <option value="">Choose day…</option>
+                        <option value="monday">Monday</option>
+                        <option value="tuesday">Tuesday</option>
+                        <option value="wednesday">Wednesday</option>
+                        <option value="thursday">Thursday</option>
+                        <option value="friday">Friday</option>
+                        <option value="saturday">Saturday</option>
+                        <option value="sunday">Sunday</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>&nbsp;</label>
+                    <div class="checkbox-row" style="padding: var(--space-3) 0;">
+                        <input type="checkbox" id="is_recurring" name="isRecurring" checked>
+                        <label for="is_recurring">Repeat weekly</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    <label for="start_time">Start time</label>
+                    <input type="time" id="start_time" name="startTime" class="input" required>
+                </div>
+                <div class="field">
+                    <label for="end_time">End time</label>
+                    <input type="time" id="end_time" name="endTime" class="input" required>
+                </div>
+            </div>
+
+            <div class="field" id="recurring-end-wrap">
+                <label for="recurring_end">Recurring until <span class="muted">(optional)</span></label>
+                <input type="date" id="recurring_end" name="recurringEndDate" class="input" style="max-width: 240px;">
+                <p class="help">Leave blank to repeat indefinitely.</p>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add slot</button>
+        </form>
+    </div>
+
+    <p class="mt-5">
+        <a href="{% url 'tutor_dashboard' %}" class="btn btn-ghost">← Back to dashboard</a>
+    </p>
+
+</div>
+{% endblock %}

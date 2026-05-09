@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign in — TutorLink{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+  <div class="auth-card rise rise-1">
+    <h1>Welcome back.</h1>
+    <p class="lede">Sign in to manage your bookings and messages.</p>
+
+    <form method="post" action="{% url 'login' %}" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger">
+        {% for error in form.non_field_errors %}
+        <span>{{ error }}</span>
+        {% endfor %}
+      </div>
+      {% elif form.errors %}
+      <div class="alert alert-danger">
+        <span>Please fix the fields below and try again.</span>
+      </div>
+      {% endif %}
+
+      <div class="field">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email"
+          class="input{% if form.email.errors or form.non_field_errors %} is-invalid{% endif %}" required
+          autocomplete="email" value="{{ form.email.value|default_if_none:'' }}" autofocus>
+        {% for error in form.email.errors %}
+        <p class="field-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="field">
+        <div class="flex items-center justify-between mb-2">
+          <label for="password" style="margin: 0;">Password</label>
+          <a href="{% url 'password_reminder' %}" class="small">Forgot?</a>
+        </div>
+        <input type="password" id="password" name="password"
+          class="input{% if form.password.errors or form.non_field_errors %} is-invalid{% endif %}" required
+          autocomplete="current-password" aria-describedby="login_password_hint">
+        <p class="pwd-hint" id="login_password_hint" data-pwd-short-hint>That password looks too short. TutorLink
+          passwords use at least 8 characters.</p>
+        {% for error in form.password.errors %}
+        <p class="field-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="checkbox-row mb-5">
+        <input type="checkbox" id="remember" name="remember">
+        <label for="remember">Keep me signed in on this device</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg">Sign in</button>
+    </form>
+
+    <div class="auth-foot">
+      New to TutorLink? <a href="{% url 'register' %}">Create an account</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

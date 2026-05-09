@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}TutorLink — Find a tutor near you{% endblock %}
+
+{% block content %}
+
+<!-- ======== HERO ======== -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow rise rise-1">Local tutors · Verified · Trusted</p>
+        <h1 class="hero-title rise rise-2">
+          Find a tutor who <em>fits</em>.<br>
+          In your subject. In your zip code.
+        </h1>
+        <p class="hero-lede rise rise-3">
+          TutorLink connects students and parents with background-checked local tutors and
+          skill coaches — from algebra to acoustic guitar, calculus to chess.
+        </p>
+        <div class="hero-cta rise rise-4">
+          <a href="{% url 'search_tutors' %}" class="btn btn-primary btn-lg">Find a tutor</a>
+          <a href="{% url 'register' %}" class="btn btn-outline btn-lg">Become a tutor</a>
+        </div>
+      </div>
+
+      <div class="hero-visual rise rise-3" aria-hidden="true">
+        <div class="hero-visual-card hero-visual-card-1">
+          <div class="avatar avatar-sm" style="background: linear-gradient(135deg, #F5E1D8, #FAF7F2);">M</div>
+          <div>
+            <h5>Maya R.</h5>
+            <p>SAT Math · 4.9 ★</p>
+          </div>
+        </div>
+        <div class="hero-visual-card hero-visual-card-2">
+          <div class="avatar avatar-sm" style="background: linear-gradient(135deg, #D6E4E8, #FAF7F2);">D</div>
+          <div>
+            <h5>David P.</h5>
+            <p>Spanish · 4.8 ★</p>
+          </div>
+        </div>
+        <div class="hero-visual-card hero-visual-card-3">
+          <div class="avatar avatar-sm" style="background: linear-gradient(135deg, #E8EDE3, #FAF7F2);">S</div>
+          <div>
+            <h5>Sara L.</h5>
+            <p>Piano · 5.0 ★</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== HOW IT WORKS ======== -->
+<section class="section" id="how">
+  <div class="container">
+    <p class="eyebrow">How it works</p>
+    <h2 style="max-width: 720px; margin-bottom: var(--space-8);">
+      Three steps from <em style="font-style: italic; color: var(--color-accent);">searching</em>
+      to your first lesson.
+    </h2>
+
+    <div class="features">
+      <div class="feature">
+        <span class="feature-num">01</span>
+        <h3>Search by subject &amp; zip</h3>
+        <p>Filter by what you want to learn, where you live, when you're free, and whether you need a verified tutor
+          with a background check on file.</p>
+      </div>
+      <div class="feature">
+        <span class="feature-num">02</span>
+        <h3>Book with confidence</h3>
+        <p>Read reviews, check credentials, message the tutor, then pick a time slot from their actual availability. Pay
+          securely through TutorLink.</p>
+      </div>
+      <div class="feature">
+        <span class="feature-num">03</span>
+        <h3>Learn &amp; review</h3>
+        <p>Meet up — at home, at the library, or wherever works. Leave a review afterward to help the next family find
+          their fit.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== POPULAR SUBJECTS ======== -->
+<section class="section-sm">
+  <div class="container">
+    <p class="eyebrow">Popular subjects</p>
+    <h2 class="mb-5">Whatever you're learning,<br>someone nearby teaches it.</h2>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-3);">
+      <a href="{% url 'search_tutors' %}?subject=Math" class="card-flat" style="text-align: center;">
+        <h5 style="margin: 0;">Mathematics</h5>
+        <p class="small muted" style="margin: 4px 0 0;">214 tutors</p>
+      </a>
+      <a href="{% url 'search_tutors' %}?subject=English" class="card-flat" style="text-align: center;">
+        <h5 style="margin: 0;">English</h5>
+        <p class="small muted" style="margin: 4px 0 0;">189 tutors</p>
+      </a>
+      <a href="{% url 'search_tutors' %}?subject=Spanish" class="card-flat" style="text-align: center;">
+        <h5 style="margin: 0;">Spanish</h5>
+        <p class="small muted" style="margin: 4px 0 0;">102 tutors</p>
+      </a>
+      <a href="{% url 'search_tutors' %}?subject=Piano" class="card-flat" style="text-align: center;">
+        <h5 style="margin: 0;">Piano</h5>
+        <p class="small muted" style="margin: 4px 0 0;">76 tutors</p>
+      </a>
+      <a href="{% url 'search_tutors' %}?subject=Chess" class="card-flat" style="text-align: center;">
+        <h5 style="margin: 0;">Chess</h5>
+        <p class="small muted" style="margin: 4px 0 0;">41 tutors</p>
+      </a>
+      <a href="{% url 'search_tutors' %}?subject=Coding" class="card-flat" style="text-align: center;">
+        <h5 style="margin: 0;">Coding</h5>
+        <p class="small muted" style="margin: 4px 0 0;">88 tutors</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ======== CTA BANNER ======== -->
+<section class="section">
+  <div class="container">
+    <div class="cta-banner">
+      <h2>Teach what you love. Get paid for it.</h2>
+      <p>Set your own rates, schedule, and service area. We handle bookings and payments.</p>
+      <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Apply to teach</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

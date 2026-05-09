@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard — TutorLink{% endblock %}
+{% block nav_cdashboard_active %}class="active"{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="page-header">
+        <p class="eyebrow rise rise-1">Welcome back</p>
+        <h1 class="rise rise-2">Hello, <em style="font-style: italic; color: var(--color-accent);">{{ user.first_name|default:'there' }}</em>.</h1>
+        <p class="lede rise rise-3">
+            Pick up where you left off, or find someone new to learn from.
+        </p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-grid">
+        <div class="stat rise rise-1">
+            <div class="stat-label">Upcoming bookings</div>
+            <div class="stat-value">{{ upcoming_bookings_count|default:'0' }}</div>
+            <div class="stat-meta">{{ next_booking_when|default:'No sessions scheduled' }}</div>
+        </div>
+        <div class="stat rise rise-2">
+            <div class="stat-label">Unread messages</div>
+            <div class="stat-value">{{ unread_messages_count|default:'0' }}</div>
+            <div class="stat-meta"><a href="{% url 'messages_inbox' %}">Open inbox →</a></div>
+        </div>
+        <div class="stat rise rise-3">
+            <div class="stat-label">Pending reviews</div>
+            <div class="stat-value">{{ pending_reviews_count|default:'0' }}</div>
+            <div class="stat-meta">Sessions awaiting your feedback</div>
+        </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="three-col mb-6">
+        <a href="{% url 'search_tutors' %}" class="card card-hover" style="text-decoration: none; color: inherit;">
+            <h3 class="card-title">Find a tutor</h3>
+            <p class="muted small">Browse by subject, location, schedule, or verified status.</p>
+        </a>
+        <a href="{% url 'view_bookings' %}" class="card card-hover" style="text-decoration: none; color: inherit;">
+            <h3 class="card-title">My bookings</h3>
+            <p class="muted small">Manage upcoming sessions and review past ones.</p>
+        </a>
+        <a href="{% url 'payment_history' %}" class="card card-hover" style="text-decoration: none; color: inherit;">
+            <h3 class="card-title">Payment history</h3>
+            <p class="muted small">View all your transactions and receipts.</p>
+        </a>
+    </div>
+
+    <!-- Upcoming sessions -->
+    <div class="section-sm">
+        <div class="flex items-center justify-between mb-4">
+            <h2 style="margin: 0;">Your upcoming sessions</h2>
+            <a href="{% url 'view_bookings' %}" class="btn btn-ghost btn-sm">View all →</a>
+        </div>
+
+        {% if upcoming_bookings %}
+            {% for b in upcoming_bookings %}
+            <div class="booking-item">
+                <div class="date-block">
+                    <div class="date-block-month">{{ b.month }}</div>
+                    <div class="date-block-day">{{ b.day }}</div>
+                    <div class="date-block-time">{{ b.time }}</div>
+                </div>
+                <div class="booking-info">
+                    <h4>{{ b.subject_name }} with {{ b.tutor_name }}</h4>
+                    <div class="booking-info-meta">
+                        <span><span class="status-dot {{ b.status_class }}"></span>{{ b.status }}</span>
+                        <span>· {{ b.duration_minutes }} min</span>
+                        <span>· {{ b.location }}</span>
+                    </div>
+                </div>
+                <div class="booking-actions">
+                    <a href="{% url 'view_bookings' %}" class="btn btn-outline btn-sm">Details</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty">
+                <div class="empty-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="11" cy="11" r="7"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                </div>
+                <h3>No sessions yet</h3>
+                <p>Search for a tutor to book your first session.</p>
+                <a href="{% url 'search_tutors' %}" class="btn btn-primary btn-sm">Find a tutor</a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
