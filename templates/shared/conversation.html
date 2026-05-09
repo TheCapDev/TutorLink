@@ -27,28 +27,28 @@
     </div>
 
     <!-- Thread -->
-    <div class="thread">
+    <div class="thread" data-conversation-url="{% url 'conversation_updates' other_user.userId %}" data-last-message-id="{{ last_message_id|default:'0' }}">
         {% for msg in thread %}
             {% if msg.is_me %}
-                <div class="bubble bubble-me">
+                <div class="bubble bubble-me" data-message-id="{{ msg.messageId }}">
                     <div>{{ msg.body }}</div>
                     <div class="bubble-time">{{ msg.sent_at_display }}</div>
                 </div>
             {% else %}
-                <div class="bubble bubble-them">
+                <div class="bubble bubble-them" data-message-id="{{ msg.messageId }}">
                     <div>{{ msg.body }}</div>
                     <div class="bubble-time">{{ msg.sent_at_display }}</div>
                 </div>
             {% endif %}
         {% empty %}
-            <div class="text-center muted small" style="padding: var(--space-6);">
+            <div class="text-center muted small" style="padding: var(--space-6);" data-empty-thread>
                 No messages yet. Say hello.
             </div>
         {% endfor %}
     </div>
 
     <!-- Compose -->
-    <form method="post" action="{% url 'conversation' other_user.userId %}" class="compose">
+    <form method="post" action="{% url 'conversation' other_user.userId %}" class="compose" data-live-compose>
         {% csrf_token %}
         <input type="text" name="body" class="input flex-1" placeholder="Write a message…" required autocomplete="off" autofocus>
         <button type="submit" class="btn btn-primary">Send</button>

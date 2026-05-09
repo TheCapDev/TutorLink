@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Avg, Count, Q
 from django.utils import timezone
-from django.http import Http404
+from django.http import Http404, JsonResponse
 
 from .models import (
     Tutor, Client, Subject, TutorSubject, Credential,
@@ -52,6 +52,14 @@ def _next_booking_when(booking):
     if booking is None:
         return "No sessions scheduled"
     return booking.scheduledDateTime.strftime("%a %b %d, %I:%M %p").replace(" 0", " ")
+
+
+def _wants_json(request):
+    accept = request.headers.get("accept", "")
+    return (
+        request.headers.get("x-requested-with") == "XMLHttpRequest"
+        or "application/json" in accept
+    )
 
 
 # ── Public Pages ──────────────────────────────────────────────────────────
@@ -413,7 +421,7 @@ def create_booking(request, tutor_id):
             bookingID=booking, amount=amount, method=d["payment_method"], status="processed",
         )
         messages.success(request, "Booking created and payment processed!")
-        return redirect("/bookings/")
+        return redirect("/bookings/?tab=pending")
 
     return render(request, "client/create_booking.html", {
         "form": form,
@@ -548,10 +556,16 @@ def conversation(request, other_user_id):
     if request.method == "POST":
         form = MessageForm(request.POST)
         if form.is_valid():
-            Message.objects.create(
+            message = Message.objects.create(
                 senderUserId=me, receiverUserId=other, body=form.cleaned_data["body"],
             )
+            if _wants_json(request):
+                return JsonResponse({
+                    "message": display.thread_message(message, me),
+                })
             return redirect(f"/messages/conversation/{other_user_id}/")
+        if _wants_json(request):
+            return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
     else:
         form = MessageForm()
 
@@ -563,10 +577,37 @@ def conversation(request, other_user_id):
             Q(senderUserId=me, receiverUserId=other) |
             Q(senderUserId=other, receiverUserId=me)
         )
-        .order_by("sentAt")
+        .order_by("sentAt", "messageId")
     )
+    thread = display.thread_messages(msgs, me)
     return render(request, "shared/conversation.html", {
-        "thread": display.thread_messages(msgs, me),
+        "thread": thread,
+        "last_message_id": thread[-1]["messageId"] if thread else 0,
         "other_user": display.conversation_data(other, me),
         "form": form,
+    })
+
+
+@login_required
+def conversation_updates(request, other_user_id):
+    other = get_object_or_404(User, userId=other_user_id)
+    me = request.user
+    try:
+        after = int(request.GET.get("after", "0"))
+    except (TypeError, ValueError):
+        after = 0
+
+    Message.objects.filter(senderUserId=other, receiverUserId=me, isRead=False).update(isRead=True)
+
+    msgs = (
+        Message.objects
+        .filter(
+            Q(senderUserId=me, receiverUserId=other) |
+            Q(senderUserId=other, receiverUserId=me),
+            messageId__gt=after,
+        )
+        .order_by("sentAt", "messageId")
+    )
+    return JsonResponse({
+        "messages": display.thread_messages(msgs, me),
     })

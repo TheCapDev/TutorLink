@@ -163,6 +163,10 @@
                 }
             });
         });
+
+        const requestedTab = new URLSearchParams(window.location.search).get('tab');
+        const initialTab = requestedTab ? Array.from(tabs).find(tab => tab.dataset.target === requestedTab) : null;
+        if (initialTab) initialTab.click();
     });
 
     // -------- Booking duration → price preview --------
@@ -193,8 +197,115 @@
         update();
     });
 
-    // -------- Auto-scroll thread to latest message --------
+    // -------- Live conversation updates --------
     const thread = document.querySelector('.thread');
     if (thread) thread.scrollTop = thread.scrollHeight;
+
+    function appendThreadMessage(threadEl, message) {
+        if (!message || !message.messageId) return;
+        if (threadEl.querySelector(`[data-message-id="${message.messageId}"]`)) return;
+
+        const emptyThread = threadEl.querySelector('[data-empty-thread]');
+        if (emptyThread) emptyThread.remove();
+
+        const bubble = document.createElement('div');
+        bubble.className = `bubble ${message.is_me ? 'bubble-me' : 'bubble-them'}`;
+        bubble.dataset.messageId = String(message.messageId);
+
+        const body = document.createElement('div');
+        body.textContent = message.body || '';
+
+        const time = document.createElement('div');
+        time.className = 'bubble-time';
+        time.textContent = message.sent_at_display || '';
+
+        bubble.append(body, time);
+        threadEl.appendChild(bubble);
+
+        const currentLast = parseInt(threadEl.dataset.lastMessageId || '0', 10) || 0;
+        threadEl.dataset.lastMessageId = String(Math.max(currentLast, message.messageId));
+    }
+
+    if (thread && thread.dataset.conversationUrl && window.fetch) {
+        let isPolling = false;
+
+        const fetchThreadUpdates = () => {
+            if (isPolling) return;
+            isPolling = true;
+
+            const lastId = parseInt(thread.dataset.lastMessageId || '0', 10) || 0;
+            const url = new URL(thread.dataset.conversationUrl, window.location.origin);
+            url.searchParams.set('after', String(lastId));
+
+            fetch(url.toString(), {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Unable to load messages');
+                    return response.json();
+                })
+                .then(data => {
+                    const messages = Array.isArray(data.messages) ? data.messages : [];
+                    if (!messages.length) return;
+
+                    const wasNearBottom = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 80;
+                    messages.forEach(message => appendThreadMessage(thread, message));
+                    if (wasNearBottom) thread.scrollTop = thread.scrollHeight;
+                })
+                .catch(() => {
+                    // Keep the server-rendered fallback intact if polling fails.
+                })
+                .finally(() => {
+                    isPolling = false;
+                });
+        };
+
+        fetchThreadUpdates();
+        window.setInterval(fetchThreadUpdates, 3000);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) fetchThreadUpdates();
+        });
+    }
+
+    const liveCompose = document.querySelector('[data-live-compose]');
+    if (liveCompose && thread && window.fetch) {
+        liveCompose.addEventListener('submit', (event) => {
+            if (liveCompose.dataset.submitting === 'true') return;
+
+            const input = liveCompose.querySelector('[name="body"]');
+            if (!input || !input.value.trim()) return;
+
+            event.preventDefault();
+            liveCompose.dataset.submitting = 'true';
+
+            fetch(liveCompose.action, {
+                method: 'POST',
+                body: new FormData(liveCompose),
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Unable to send message');
+                    return response.json();
+                })
+                .then(data => {
+                    appendThreadMessage(thread, data.message);
+                    thread.scrollTop = thread.scrollHeight;
+                    input.value = '';
+                    input.focus();
+                })
+                .catch(() => {
+                    liveCompose.submit();
+                })
+                .finally(() => {
+                    delete liveCompose.dataset.submitting;
+                });
+        });
+    }
 
 })();

@@ -162,6 +162,7 @@ def booking_row(booking, viewer_type):
         "subject_name": sub.name,
         "client_name": f"{first_name(client_user)} {last_name_initial(client_user)}.",
         "tutor_name": f"{first_name(tutor_user)} {last_name_initial(tutor_user)}.",
+        "tutor_user_id": tutor_user.userId,
         "client_initial": first_name(client_user)[:1].upper() or "?",
         "tutor_initials": initials(tutor_user),
         "duration_minutes": booking.durationMinutes,
@@ -291,15 +292,17 @@ def conversation_data(other_user, me):
     }
 
 
+def thread_message(message, me):
+    return {
+        "messageId": message.messageId,
+        "is_me": message.senderUserId_id == me.userId,
+        "body": message.body,
+        "sent_at_display": message.sentAt.strftime("%b %d, %I:%M %p").replace(" 0", " "),
+    }
+
+
 def thread_messages(messages, me):
-    out = []
-    for m in messages:
-        out.append({
-            "is_me": m.senderUserId_id == me.userId,
-            "body": m.body,
-            "sent_at_display": m.sentAt.strftime("%b %d, %I:%M %p").replace(" 0", " "),
-        })
-    return out
+    return [thread_message(m, me) for m in messages]
 
 
 def availability_grid(tutor):

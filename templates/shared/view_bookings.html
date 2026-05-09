@@ -59,6 +59,9 @@
                     </div>
                 </div>
                 <div class="booking-actions">
+                    {% if user_type == 'client' %}
+                        <a href="{% url 'conversation' b.tutor_user_id %}" class="btn btn-primary btn-sm">Message tutor</a>
+                    {% endif %}
                     {% if user_type == 'tutor' and b.status == 'Confirmed' %}
                         <form method="post" action="{% url 'view_bookings' %}" style="margin: 0;">
                             {% csrf_token %}
@@ -117,12 +120,14 @@
                         <input type="hidden" name="booking_id" value="{{ b.bookingId }}">
                         <button type="submit" class="btn btn-primary btn-sm">Confirm</button>
                     </form>
+                    {% else %}
+                        <a href="{% url 'conversation' b.tutor_user_id %}" class="btn btn-primary btn-sm">Message tutor</a>
                     {% endif %}
                     <form method="post" action="{% url 'view_bookings' %}" style="margin: 0;">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="cancel">
                         <input type="hidden" name="booking_id" value="{{ b.bookingId }}">
-                        <button type="submit" class="btn btn-outline btn-sm" data-confirm="Decline this request?">Decline</button>
+                        <button type="submit" class="btn btn-outline btn-sm" data-confirm="{% if user_type == 'tutor' %}Decline this request?{% else %}Cancel this booking? If a payment was made, it will be refunded.{% endif %}">{% if user_type == 'tutor' %}Decline{% else %}Cancel{% endif %}</button>
                     </form>
                 </div>
             </div>
@@ -154,6 +159,9 @@
                     </div>
                 </div>
                 <div class="booking-actions">
+                    {% if user_type == 'client' %}
+                        <a href="{% url 'conversation' b.tutor_user_id %}" class="btn btn-outline btn-sm">Message tutor</a>
+                    {% endif %}
                     {% if user_type == 'client' and not b.has_review and b.status == 'Completed' %}
                         <a href="{% url 'submit_review' b.bookingId %}" class="btn btn-primary btn-sm">Leave review</a>
                     {% elif b.has_review %}

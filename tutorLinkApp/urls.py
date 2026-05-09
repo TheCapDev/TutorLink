@@ -45,4 +45,5 @@ urlpatterns = [
     path("bookings/", views.view_bookings, name="view_bookings"),
     path("messages/", views.messages_inbox, name="messages_inbox"),
     path("messages/conversation/<int:other_user_id>/", views.conversation, name="conversation"),
+    path("messages/conversation/<int:other_user_id>/updates/", views.conversation_updates, name="conversation_updates"),
 ]
